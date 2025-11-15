@@ -191,6 +191,7 @@ public class FileStorage {
 			student,
 			String.valueOf(correct),
 			String.valueOf(total),
+			//Locale.ROOT：确保格式化统一，不受地区语言限制
 			String.format(Locale.ROOT, "%.4f", acc),
 			String.valueOf(System.currentTimeMillis())
 		));

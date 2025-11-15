@@ -73,22 +73,23 @@ public class TeacherUI {
      * 用户输入题目数量，生成题库并保存
      */
     private void createBank() {
+        // 1. 获取用户输入的题目数量
         Integer n = InputHelper.readIntInRangeOrEmpty(scanner, "请输入生成题目数量（1-100）（或直接回车返回）：", 1, 100);
         if (n == null) return;
     
-        // 用 Exercise 子类管理题目
+        // 2. 创建 Exercise 子类管理题目
         Exercise exercise = new MixedExercise(); 
-        exercise.generateExercise(n);            // 生成 n 道题
+        exercise.generateExercise(n);            
     
-        // 打印题目
+        // 3. 打印提示信息和题目
         System.out.println("已生成题库并保存！");
         printQuestions6PerLine(exercise.getProblems());
     
-        // 保存到文件
+        // 4. 创建题库QuestionBank对象设置相关信息
         String id = teacher.getUsername() + "_" + System.currentTimeMillis();
         QuestionBank bank = new QuestionBank(id, System.currentTimeMillis(), n, teacher.getUsername(), false, 0L);
     
-        // Exercise里有题目列表，直接传给存储
+        // 5. 将题库信息和具体的题目列表存入本地
         storage.saveNewBank(bank, exercise.getProblems());
     }
     
