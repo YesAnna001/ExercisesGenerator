@@ -125,7 +125,7 @@ public class TeacherUI {
 
         printBankList(list, true);
 
-        Integer idx = InputHelper.readOptionalIndex(scanner, "输入练习题序号进行发布（或直接回车返回）：", list.size());
+        Integer idx = InputHelper.readOptionalIndex(scanner, "请选择练习题序号进行发布（或直接回车返回）：", list.size());
         if (idx == null) return; // 用户回车返回
 
         QuestionBank bank = list.get(idx);

@@ -56,6 +56,7 @@ public abstract class Exercise {
      */
     public abstract void generateExercise(int count);
 
+
     // ------- 题目列表相关方法 -------
     /**
      * 获取题目列表
@@ -138,6 +139,19 @@ public abstract class Exercise {
         return problems.size();
     }
 
+    /** 获取当前题目索引（1-based，方便显示） */
+    public int getIndex() {
+        return index;
+    }
+
+    /** 获取用户答案列表 */
+    public List<Integer> getUserAnswers() {
+        // 返回一个“不可修改的列表”，而不是直接返回 userAnswers 本身。
+        // 作用：保证 Exercise 类对 userAnswers 的控制权，只能通过 submitAnswer(int answer) 来添加答案
+        return Collections.unmodifiableList(userAnswers);
+    }
+
+
     /**
      * 获取答对题目数量
      * 
@@ -155,6 +169,16 @@ public abstract class Exercise {
         }
         return c;
     }
+
+    /**
+     * 设置题目列表
+     * 允许在外部直接赋值题目（例如从文件或题库加载）
+     * @param problems 题目列表
+     */
+    public void setProblems(List<BinaryOperation> problems) {
+        this.problems = new ArrayList<>(problems);
+    }
+
 
 
     /**

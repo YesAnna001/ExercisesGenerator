@@ -3,6 +3,8 @@ package app.ui;
 import app.model.AttemptRecord;
 import app.model.QuestionBank;
 import app.model.User;
+import app.model.exercise.Exercise;
+import app.model.exercise.MixedExercise;
 import app.model.operation.BinaryOperation;
 import app.storage.FileStorage;
 
@@ -62,6 +64,7 @@ public class StudentUI {
 	 * 显示已发布的题库列表，让学生选择并开始答题
 	 */
 	private void startExamFlow() {
+		// 1. 加载所有已发布的答题库，存入List<QuestionBank>列表，循环遍历打印题库信息
 		List<QuestionBank> pubs = storage.loadPublishedBanksAscByPublishedTime();
 		if (pubs.isEmpty()) { System.out.println("暂无已发布题库。"); return; }
 		System.out.println("序号 | 发布时间              | 数量 | 创建人");
@@ -69,9 +72,12 @@ public class StudentUI {
 			QuestionBank b = pubs.get(i);
 			System.out.printf(Locale.ROOT, "%3d  | %s | %4d | %s%n", i+1, FileStorage.formatTime(b.getPublishedAtMs()), b.getCount(), b.getCreator());
 		}
+		// 2. 获取用户选择的题库序号
 		Integer idx = InputHelper.readOptionalIndex(scanner, "请选择答题题库序号（或直接回车返回）：", pubs.size());
 		if (idx == null) return;
+		// 3. 根据序号在list中寻找该题库
 		QuestionBank bank = pubs.get(idx);
+		// 4. 根据该题库的id加载题库内的所有题目
 		List<BinaryOperation> qs = storage.loadQuestions(bank.getId());
 		printQuestions6PerLine(qs);
 		System.out.println("----------------------------------------------------------");
@@ -81,33 +87,58 @@ public class StudentUI {
 			return;
 		}
 		System.out.println("----------------------------------------------------------");
-		List<AttemptRecord> records = doExam(qs);
+		// （废弃）5. 学生开始答题，并得到一个答题记录列表
+		// List<AttemptRecord> records = doExam(qs);
+		
+		// 5. 创建 Exercise 管理题目，传入上面读取到的所有题目
+		Exercise exercise = new MixedExercise();
+		exercise.setProblems(qs);
+		exercise.start();
+		// 5. 调用抽取方法完成答题流程
+        List<AttemptRecord> records = takeExam(exercise);
+		// 6. 存储本次做题的相关信息到本地
 		storage.saveAttemptAndScore(bank.getId(), student.getUsername(), records);
+		// 7. 打印得分信息
 		long correct = records.stream().filter(AttemptRecord::isCorrect).count();
 		int total = records.size();
 		int score = total == 0 ? 0 : (int) Math.round(correct * 100.0 / total);
 		System.out.println("提交完成。正确题数：" + correct + "/" + total + "    得分：" + score + " 分（满分100）");
 	}
 
-	/**
-	 * 执行考试
-	 * 逐题显示题目，获取学生答案，并记录答题结果
-	 * 
-	 * @param qs 题目列表
-	 * @return 答题记录列表
-	 */
-	private List<AttemptRecord> doExam(List<BinaryOperation> qs) {
-		List<AttemptRecord> records = new ArrayList<>();	// 记录学生的答题
-		for (int i = 0; i < qs.size(); i++) {
-			BinaryOperation q = qs.get(i);
-			//打印出题目格式如（1）54-12 	同时获取用户输入的答案
-			int my = InputHelper.readInt(scanner, "(" + (i+1) + ") " + q.toDisplayString());	
-			boolean correct = (my == q.getAnswer());
-			// 每做一题都加入答题记录列表
-			records.add(new AttemptRecord(i, my, q.getAnswer(), correct));
-		}
-		return records;
-	}
+	 /**
+     * 抽取出的答题方法
+     * 循环展示题目，获取用户答案，并生成答题记录列表
+     *
+     * @param exercise Exercise 对象，包含题目和答题逻辑
+     * @return List<AttemptRecord> 答题记录列表
+     */
+    private List<AttemptRecord> takeExam(Exercise exercise) {
+        while (exercise.hasNext()) {
+            BinaryOperation q = exercise.next();
+            int answer = InputHelper.readInt(scanner, "(" + exercise.getIndex() + ") " + q.toDisplayString());
+            exercise.submitAnswer(answer);
+        }
+        return exercise.toAttemptRecords(exercise.getUserAnswers());
+    }
+	// /**
+	//  * 执行考试
+	//  * 逐题显示题目，获取学生答案，并记录答题结果
+	//  * 
+	//  * @param qs 题目列表
+	//  * @return 答题记录列表
+	//  */
+	// private List<AttemptRecord> doExam(List<BinaryOperation> qs) {
+	// 	List<AttemptRecord> records = new ArrayList<>();	// 记录学生的答题
+	// 	for (int i = 0; i < qs.size(); i++) {
+	// 		BinaryOperation q = qs.get(i);
+	// 		//打印出题目格式如（1）54-12 	同时获取用户输入的答案
+	// 		int my = InputHelper.readInt(scanner, "(" + (i+1) + ") " + q.toDisplayString());	
+	// 		boolean correct = (my == q.getAnswer());
+	// 		// 每做一题都加入答题记录列表
+	// 		records.add(new AttemptRecord(i, my, q.getAnswer(), correct));
+	// 	}
+	// 	return records;
+	// }
 
 	/**
 	 * 查看成绩流程
