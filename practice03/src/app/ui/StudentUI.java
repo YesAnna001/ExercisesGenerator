@@ -87,18 +87,16 @@ public class StudentUI {
 			return;
 		}
 		System.out.println("----------------------------------------------------------");
-		// （废弃）5. 学生开始答题，并得到一个答题记录列表
-		// List<AttemptRecord> records = doExam(qs);
 		
-		// 5. 创建 Exercise 管理题目，传入上面读取到的所有题目
+		// 6. 创建 Exercise 管理题目，传入上面读取到的所有题目
 		Exercise exercise = new MixedExercise();
 		exercise.setProblems(qs);
 		exercise.start();
-		// 5. 调用抽取方法完成答题流程
+		// 7. 调用抽取方法完成答题流程
         List<AttemptRecord> records = takeExam(exercise);
-		// 6. 存储本次做题的相关信息到本地
+		// 8. 存储本次做题的相关信息到本地
 		storage.saveAttemptAndScore(bank.getId(), student.getUsername(), records);
-		// 7. 打印得分信息
+		// 9. 打印得分信息
 		long correct = records.stream().filter(AttemptRecord::isCorrect).count();
 		int total = records.size();
 		int score = total == 0 ? 0 : (int) Math.round(correct * 100.0 / total);
@@ -106,7 +104,6 @@ public class StudentUI {
 	}
 
 	 /**
-     * 抽取出的答题方法
      * 循环展示题目，获取用户答案，并生成答题记录列表
      *
      * @param exercise Exercise 对象，包含题目和答题逻辑

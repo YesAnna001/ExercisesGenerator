@@ -2,6 +2,8 @@ package app.ui;
 
 import app.model.QuestionBank;
 import app.model.User;
+import app.model.exercise.Exercise;
+import app.model.exercise.MixedExercise;
 import app.model.operation.BinaryOperation;
 import app.service.QuestionGenerator;
 import app.storage.FileStorage;
@@ -71,19 +73,25 @@ public class TeacherUI {
      * 用户输入题目数量，生成题库并保存
      */
     private void createBank() {
-        while (true) {
-            Integer n = InputHelper.readIntInRangeOrEmpty(scanner, "请输入生成题目数量（1-100）（或直接回车返回）：", 1, 100);
-            if (n == null) return; // 用户直接回车返回菜单
-			System.out.println("----------------------------------------------------------");
-            List<BinaryOperation> questions = generator.generateMixedQuestions(n);
-            String id = teacher.getUsername() + "_" + System.currentTimeMillis();
-            QuestionBank bank = new QuestionBank(id, System.currentTimeMillis(), n, teacher.getUsername(), false, 0L);
-            storage.saveNewBank(bank, questions);
-            System.out.println("已生成题库并保存！");
-            printQuestions6PerLine(questions);
-            return; // 创建完成后返回菜单
-        }
+        Integer n = InputHelper.readIntInRangeOrEmpty(scanner, "请输入生成题目数量（1-100）（或直接回车返回）：", 1, 100);
+        if (n == null) return;
+    
+        // 用 Exercise 子类管理题目
+        Exercise exercise = new MixedExercise(); 
+        exercise.generateExercise(n);            // 生成 n 道题
+    
+        // 打印题目
+        System.out.println("已生成题库并保存！");
+        printQuestions6PerLine(exercise.getProblems());
+    
+        // 保存到文件
+        String id = teacher.getUsername() + "_" + System.currentTimeMillis();
+        QuestionBank bank = new QuestionBank(id, System.currentTimeMillis(), n, teacher.getUsername(), false, 0L);
+    
+        // Exercise里有题目列表，直接传给存储
+        storage.saveNewBank(bank, exercise.getProblems());
     }
+    
 
     /**
      * 查看题库流程
