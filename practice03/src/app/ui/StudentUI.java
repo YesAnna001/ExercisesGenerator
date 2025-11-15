@@ -80,6 +80,7 @@ public class StudentUI {
 		if (c == null || "2".equals(c)) {
 			return;
 		}
+		System.out.println("----------------------------------------------------------");
 		List<AttemptRecord> records = doExam(qs);
 		storage.saveAttemptAndScore(bank.getId(), student.getUsername(), records);
 		long correct = records.stream().filter(AttemptRecord::isCorrect).count();
@@ -114,6 +115,7 @@ public class StudentUI {
 	 */
 	private void viewScoresFlow() {
 		List<String[]> list = storage.loadScoresByStudent(student.getUsername());
+		System.out.println("----------------------------------------------------------");
 		if (list.isEmpty()) { System.out.println("暂无成绩。"); return; }
 		System.out.println("序号 | 标题                      | 提交时间            | 正确/总数 | 分数");
 		for (int i = 0; i < list.size(); i++) {
@@ -131,6 +133,7 @@ public class StudentUI {
 		String bankId = list.get(idx)[0];
 		List<BinaryOperation> qs = storage.loadQuestions(bankId);
 		List<AttemptRecord> attempts = storage.loadAttempt(bankId, student.getUsername());
+		System.out.println("----------------------------------------------------------");
 		for (int i = 0; i < qs.size(); i++) {
 			BinaryOperation q = qs.get(i);
 			AttemptRecord r = attempts.size() > i ? attempts.get(i) : null;
@@ -141,7 +144,7 @@ public class StudentUI {
 				System.out.println("无作答记录");
 			}
 		}
-		System.out.println("----------------------------------------------------------");
+		
 	}
 
 	/**
