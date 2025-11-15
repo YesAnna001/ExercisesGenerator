@@ -5,7 +5,7 @@ package app.model;
  * 表示一个练习题题库，包含题库ID、创建时间、题目数量、创建者以及发布状态等信息
  */
 public class QuestionBank {
-	/** 题库唯一标识符，通常基于时间戳生成 */
+	/** 题库唯一标识符，基于时间戳生成 */
 	private final String id;
 	/** 创建时间（毫秒时间戳） */
 	private final long createdAtMs;

@@ -1,9 +1,9 @@
 package app.ui;
 
 import app.model.AttemptRecord;
-import app.model.Question;
 import app.model.QuestionBank;
 import app.model.User;
+import app.model.operation.BinaryOperation;
 import app.storage.FileStorage;
 
 import java.util.*;
@@ -40,10 +40,12 @@ public class StudentUI {
 	public void run() {
 		while (true) {
 			System.out.println();
+			System.out.println("----------------------------------------------------------");
 			System.out.println("学生菜单：");
 			System.out.println("1. 开始考试");
 			System.out.println("2. 查看成绩");
 			System.out.println("3. 注销");
+			System.out.println("----------------------------------------------------------");
 			String choice = InputHelper.readOption(scanner, "请输入选项序号：", new HashSet<>(Arrays.asList("1","2","3")));
 			if ("1".equals(choice)) {
 				startExamFlow();
@@ -67,12 +69,14 @@ public class StudentUI {
 			QuestionBank b = pubs.get(i);
 			System.out.printf(Locale.ROOT, "%3d  | %s | %4d | %s%n", i+1, FileStorage.formatTime(b.getPublishedAtMs()), b.getCount(), b.getCreator());
 		}
-		Integer idx = InputHelper.readOptionalIndex(scanner, "输入题库序号查看并开始（或直接回车返回）：", pubs.size());
+		Integer idx = InputHelper.readOptionalIndex(scanner, "请选择答题题库序号（或直接回车返回）：", pubs.size());
 		if (idx == null) return;
 		QuestionBank bank = pubs.get(idx);
-		List<Question> qs = storage.loadQuestions(bank.getId());
+		List<BinaryOperation> qs = storage.loadQuestions(bank.getId());
 		printQuestions6PerLine(qs);
-		String c = InputHelper.readOptionOrEmpty(scanner, "1. 开始做题   2. 返回（或直接回车返回）\n", new HashSet<>(Arrays.asList("1","2")));
+		System.out.println("----------------------------------------------------------");
+		System.out.println("是否开始答题？");
+		String c = InputHelper.readOptionOrEmpty(scanner, "1. 开始答题   2. 返回（或直接回车返回）\n", new HashSet<>(Arrays.asList("1","2")));
 		if (c == null || "2".equals(c)) {
 			return;
 		}
@@ -91,12 +95,14 @@ public class StudentUI {
 	 * @param qs 题目列表
 	 * @return 答题记录列表
 	 */
-	private List<AttemptRecord> doExam(List<Question> qs) {
-		List<AttemptRecord> records = new ArrayList<>();
+	private List<AttemptRecord> doExam(List<BinaryOperation> qs) {
+		List<AttemptRecord> records = new ArrayList<>();	// 记录学生的答题
 		for (int i = 0; i < qs.size(); i++) {
-			Question q = qs.get(i);
-			int my = InputHelper.readInt(scanner, "(" + (i+1) + ") " + q.toDisplayString());
+			BinaryOperation q = qs.get(i);
+			//打印出题目格式如（1）54-12 	同时获取用户输入的答案
+			int my = InputHelper.readInt(scanner, "(" + (i+1) + ") " + q.toDisplayString());	
 			boolean correct = (my == q.getAnswer());
+			// 每做一题都加入答题记录列表
 			records.add(new AttemptRecord(i, my, q.getAnswer(), correct));
 		}
 		return records;
@@ -120,13 +126,13 @@ public class StudentUI {
 			int score = total == 0 ? 0 : (int) Math.round(correct * 100.0 / total);
 			System.out.printf(Locale.ROOT, "%3d  | %-24s | %s | %2d/%-3d | %3d%n", i+1, title, FileStorage.formatTime(submitAt), correct, total, score);
 		}
-		Integer idx = InputHelper.readOptionalIndex(scanner, "输入题库序号查看每题（或直接回车返回）：", list.size());
+		Integer idx = InputHelper.readOptionalIndex(scanner, "请选择要查看的题库序号（或直接回车返回）：", list.size());
 		if (idx == null) return;
 		String bankId = list.get(idx)[0];
-		List<Question> qs = storage.loadQuestions(bankId);
+		List<BinaryOperation> qs = storage.loadQuestions(bankId);
 		List<AttemptRecord> attempts = storage.loadAttempt(bankId, student.getUsername());
 		for (int i = 0; i < qs.size(); i++) {
-			Question q = qs.get(i);
+			BinaryOperation q = qs.get(i);
 			AttemptRecord r = attempts.size() > i ? attempts.get(i) : null;
 			System.out.println("第" + (i+1) + "题：" + q.toDisplayString());
 			if (r != null) {
@@ -135,6 +141,7 @@ public class StudentUI {
 				System.out.println("无作答记录");
 			}
 		}
+		System.out.println("----------------------------------------------------------");
 	}
 
 	/**
@@ -143,7 +150,7 @@ public class StudentUI {
 	 * 
 	 * @param questions 题目列表
 	 */
-	private void printQuestions6PerLine(List<Question> questions) {
+	private void printQuestions6PerLine(List<BinaryOperation> questions) {
 		for (int i = 0; i < questions.size(); i++) {
 			System.out.printf(Locale.ROOT, "%-12s", questions.get(i).toDisplayString());
 			if ((i+1) % 6 == 0 || i == questions.size()-1) System.out.println();

@@ -1,8 +1,8 @@
 package app.ui;
 
-import app.model.Question;
 import app.model.QuestionBank;
 import app.model.User;
+import app.model.operation.BinaryOperation;
 import app.service.QuestionGenerator;
 import app.storage.FileStorage;
 
@@ -42,11 +42,13 @@ public class TeacherUI {
 	public void run() {
 		while (true) {
 			System.out.println();
+			System.out.println("----------------------------------------------------------");
 			System.out.println("教师菜单：");
 			System.out.println("1. 创建练习题");
 			System.out.println("2. 查看练习题");
 			System.out.println("3. 发布练习题");
 			System.out.println("4. 注销");
+			System.out.println("----------------------------------------------------------");
 			String choice = InputHelper.readOption(scanner, "请输入选项序号：", new HashSet<>(Arrays.asList("1","2","3","4")));
 			if ("1".equals(choice)) {
 				createBank();
@@ -67,7 +69,7 @@ public class TeacherUI {
 	private void createBank() {
 		Integer n = InputHelper.readIntInRangeOrEmpty(scanner, "请输入生成题目数量（1-100）（或直接回车返回）：", 1, 100);
 		if (n == null) return;
-		List<Question> questions = generator.generate(n);
+		List<BinaryOperation> questions = generator.generateMixedQuestions(n);
 		String id = teacher.getUsername() + "_" + System.currentTimeMillis();
 		QuestionBank bank = new QuestionBank(id, System.currentTimeMillis(), n, teacher.getUsername(), false, 0L);
 		storage.saveNewBank(bank, questions);
@@ -90,7 +92,7 @@ public class TeacherUI {
 		System.out.println("题目数量：" + bank.getCount());
 		System.out.println("创建人：" + bank.getCreator());
 		System.out.println("发布状态：" + (bank.isPublished()?"已发布":"未发布"));
-		List<Question> qs = storage.loadQuestions(bank.getId());
+		List<BinaryOperation> qs = storage.loadQuestions(bank.getId());
 		printQuestions6PerLine(qs);
 	}
 
@@ -107,7 +109,7 @@ public class TeacherUI {
 		QuestionBank bank = list.get(idx);
 		if (bank.isPublished()) { System.out.println("该题库已发布。"); return; }
 		storage.updateBankPublished(bank.getId(), true, System.currentTimeMillis());
-		System.out.println("发布成功");
+		System.out.println("发布成功！");
 	}
 
 	/**
@@ -122,6 +124,8 @@ public class TeacherUI {
 			QuestionBank b = list.get(i);
 			String time = FileStorage.formatTime(b.getCreatedAtMs());
 			String status = withStatus ? (b.isPublished()?"已发布":"未发布") : "";
+			// ocale.ROOT 是一个用于表示根区域设置的常量。
+			//在格式化输出时，使用 Locale.ROOT 可以确保格式化的方式不依赖于当前系统的区域设置，而是使用一个中立的、稳定的区域设置
 			System.out.printf(Locale.ROOT, "%3d  | %s | %4d | %s | %s%n", i+1, time, b.getCount(), b.getCreator(), status);
 		}
 	}
@@ -132,7 +136,7 @@ public class TeacherUI {
 	 * 
 	 * @param questions 题目列表
 	 */
-	private void printQuestions6PerLine(List<Question> questions) {
+	private void printQuestions6PerLine(List<BinaryOperation> questions) {
 		for (int i = 0; i < questions.size(); i++) {
 			System.out.printf(Locale.ROOT, "%-12s", questions.get(i).toDisplayString());
 			if ((i+1) % 6 == 0 || i == questions.size()-1) System.out.println();

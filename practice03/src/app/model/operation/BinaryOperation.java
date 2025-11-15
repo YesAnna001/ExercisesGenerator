@@ -1,33 +1,33 @@
-package app.model;
+package app.model.operation;
 
 /**
- * 题目实体类
+ * 二元运算题目实体类
  * 表示一道100以内的加减法题目，包含左操作数、右操作数、运算符和答案
  */
-public class Question {
+public abstract class BinaryOperation {
 	/** 左操作数 */
-	private final int left;
+	protected final int left;
 	/** 右操作数 */
-	private final int right;
+	protected final int right;
 	/** 运算符，'+' 表示加法，'-' 表示减法 */
-	private final char op;
+	protected final char op;
 	/** 正确答案 */
-	private final int answer;
+	protected final int answer;
 
 	/**
 	 * 构造函数
-	 * 
 	 * @param left 左操作数
 	 * @param right 右操作数
 	 * @param op 运算符（'+' 或 '-'）
 	 * @param answer 正确答案
 	 */
-	public Question(int left, int right, char op, int answer) {
+	public BinaryOperation(int left, int right, char op, int answer) {
 		this.left = left;
 		this.right = right;
 		this.op = op;
 		this.answer = answer;
 	}
+
 
 	/**
 	 * 获取左操作数
@@ -36,6 +36,7 @@ public class Question {
 	 */
 	public int getLeft() { return left; }
 	
+
 	/**
 	 * 获取右操作数
 	 * 
@@ -43,6 +44,7 @@ public class Question {
 	 */
 	public int getRight() { return right; }
 	
+
 	/**
 	 * 获取运算符
 	 * 
@@ -57,6 +59,16 @@ public class Question {
 	 */
 	public int getAnswer() { return answer; }
 
+	
+	// 验证该算式是否有效
+	public abstract boolean isValid();
+
+
+	/**
+	 * 计算算式的结果
+	 * @return	返回一个int类型的答案
+	 */
+	public abstract int calculate();
 	/**
 	 * 转换为显示字符串
 	 * 格式：左操作数 运算符 右操作数 = 
@@ -66,6 +78,8 @@ public class Question {
 	public String toDisplayString() {
 		return left + " " + op + " " + right + " = ";
 	}
+
+
 
 	/**
 	 * 转换为存储字符串
@@ -77,21 +91,37 @@ public class Question {
 		return left + "," + op + "," + right + "," + answer;
 	}
 
+	
 	/**
-	 * 从存储字符串解析题目对象
+	 * 从存储字符串解析加法题目对象
 	 * 
 	 * @param s CSV格式的字符串，格式为：左操作数,运算符,右操作数,答案
 	 * @return 解析得到的题目对象，如果格式不正确则返回null
-	 */
-	public static Question fromStorageString(String s) {
-		String[] parts = s.split(",");
-		if (parts.length != 4) return null;
-		int l = Integer.parseInt(parts[0]);
-		char o = parts[1].charAt(0);
-		int r = Integer.parseInt(parts[2]);
-		int a = Integer.parseInt(parts[3]);
-		return new Question(l, r, o, a);
-	}
+	*/
+	public static BinaryOperation fromStorageString(String s) {
+        if (s == null || s.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+			String[] parts = s.split(",");
+			if (parts.length != 4) return null;
+			int left = Integer.parseInt(parts[0]);
+			char operator = parts[1].charAt(0);
+			int right = Integer.parseInt(parts[2]);
+			int answer = Integer.parseInt(parts[3]);
+            switch (operator) {
+                case '+':
+                    return new Addition(left, right,answer);
+                case '-':
+					return new Subtraction(left, right ,answer);
+                default:	
+                    return null;
+            }
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 
 	/**
 	 * 计算哈希值
@@ -120,7 +150,7 @@ public class Question {
 	public boolean equals(Object obj) {
 		if (this == obj) return true;
 		if (obj == null || getClass() != obj.getClass()) return false;
-		Question q = (Question) obj;
+		BinaryOperation q = (BinaryOperation) obj;
 		return left == q.left && right == q.right && op == q.op && answer == q.answer;
 	}
 }

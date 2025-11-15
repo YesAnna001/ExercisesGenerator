@@ -1,8 +1,8 @@
 package app.storage;
 
 import app.model.AttemptRecord;
-import app.model.Question;
 import app.model.QuestionBank;
+import app.model.operation.BinaryOperation;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -105,7 +105,7 @@ public class FileStorage {
 	 * @param bank 题库对象
 	 * @param questions 题目列表
 	 */
-	public void saveNewBank(QuestionBank bank, List<Question> questions) {
+	public void saveNewBank(QuestionBank bank, List<BinaryOperation> questions) {
 		appendLine(exercisesCsv, String.join(",",
 			bank.getId(),
 			String.valueOf(bank.getCreatedAtMs()),
@@ -116,7 +116,7 @@ public class FileStorage {
 		));
 		File qFile = new File(questionsDir, bank.getId() + ".txt");
 		List<String> qs = new ArrayList<>();
-		for (Question q : questions) qs.add(q.toStorageString());
+		for (BinaryOperation q : questions) qs.add(q.toStorageString());
 		writeAllLines(qFile, qs);
 	}
 
@@ -154,13 +154,13 @@ public class FileStorage {
 	 * @param bankId 题库ID
 	 * @return 题目列表
 	 */
-	public List<Question> loadQuestions(String bankId) {
+	public List<BinaryOperation> loadQuestions(String bankId) {
 		File qFile = new File(questionsDir, bankId + ".txt");
 		List<String> lines = readAllLines(qFile);
-		List<Question> out = new ArrayList<>();
+		List<BinaryOperation> out = new ArrayList<>();
 		for (String s : lines) {
 			if (s.trim().isEmpty()) continue;
-			Question q = Question.fromStorageString(s);
+			BinaryOperation q = BinaryOperation.fromStorageString(s);
 			if (q != null) out.add(q);
 		}
 		return out;
@@ -252,7 +252,7 @@ public class FileStorage {
 			String line;
 			while ((line = br.readLine()) != null) list.add(line);
 		} catch (Exception e) {
-			// ignore
+			
 		}
 		return list;
 	}
