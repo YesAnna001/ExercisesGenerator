@@ -1,0 +1,6 @@
+index,myAnswer,correctAnswer,correct
+0,18,18,true
+1,6,6,true
+2,60,60,true
+3,3,3,true
+4,234,12,false
