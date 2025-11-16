@@ -112,7 +112,9 @@ public class QuestionBank {
 			case "add": return "加法专项练习";
 			case "sub": return "减法专项练习";
 			case "mix": return "加减混合练习";
-			default:    return "未知题型";
+			default:
+				return type; // 直接返回原始类型，例如 加减混合算式题7道.csv / CSV导入 / 自定义名称
 		}
 	}
+
 }

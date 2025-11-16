@@ -9,6 +9,7 @@ import app.model.exercise.SubtractionExercise;
 import app.model.operation.BinaryOperation;
 import app.storage.FileStorage;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -125,10 +126,13 @@ public class TeacherUI {
         System.out.println("已导入 CSV 文件题目：");
         printQuestions6PerLine(problems);
 
+        // 取文件名作为 type
+        String name = new File(path).getName();
+        String type = name.substring(0, name.lastIndexOf('.'));
         // 创建题库元信息
         String id = teacher.getUsername() + "_" + System.currentTimeMillis();
         QuestionBank bank = new QuestionBank(id, System.currentTimeMillis(), problems.size(),
-                teacher.getUsername(), false, 0L, "CSV导入");
+                teacher.getUsername(), false, 0L, type);
         storage.saveNewBank(bank, problems);
 
         System.out.println("题库已保存！");
