@@ -1,7 +1,6 @@
 package app.model.exercise;
 
 import java.util.List;
-
 import app.model.operation.BinaryOperation;
 import app.service.QuestionGenerator;
 
@@ -16,7 +15,7 @@ public class MixedExercise extends Exercise {
 
     /**
      * 生成习题
-     * 使用 QuestionGenerator 生成指定数量的题目
+     * 使用 OperationBase 生成指定数量的题目
      * 
      * @param count 题目数量
      */
