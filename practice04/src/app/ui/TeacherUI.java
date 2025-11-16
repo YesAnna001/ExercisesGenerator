@@ -5,7 +5,6 @@ import app.model.User;
 import app.model.exercise.Exercise;
 import app.model.exercise.MixedExercise;
 import app.model.operation.BinaryOperation;
-import app.service.QuestionGenerator;
 import app.storage.FileStorage;
 
 import java.util.*;
@@ -21,8 +20,6 @@ public class TeacherUI {
     private final User teacher;
     /** 文件存储服务 */
     private final FileStorage storage;
-    /** 题目生成器 */
-    private final QuestionGenerator generator = new QuestionGenerator();
 
     /**
      * 构造函数
@@ -51,7 +48,7 @@ public class TeacherUI {
 			System.out.printf("| %-50s |\n", "3. 发布练习题");
 			System.out.printf("| %-53s |\n", "4. 注销");
 			System.out.println(border);
-            String choice = InputHelper.readOption(scanner, "请输入选项序号：", new HashSet<>(Arrays.asList("1","2","3","4")));
+            String choice = InputHelper.readOption(scanner, "请输入教师菜单选项序号：", new HashSet<>(Arrays.asList("1","2","3","4")));
             switch (choice) {
                 case "1":
                     createBank();
@@ -76,7 +73,8 @@ public class TeacherUI {
         // 1. 获取用户输入的题目数量
         Integer n = InputHelper.readIntInRangeOrEmpty(scanner, "请输入生成题目数量（1-100）（或直接回车返回）：", 1, 100);
         if (n == null) return;
-    
+
+        
         // 2. 创建 Exercise 子类管理题目
         Exercise exercise = new MixedExercise(); 
         exercise.generateExercise(n);            

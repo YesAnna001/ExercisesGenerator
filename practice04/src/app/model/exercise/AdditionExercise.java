@@ -1,30 +1,31 @@
-// package app.model.exercise;
+package app.model.exercise;
 
-// import java.util.List;
+import java.util.List;
 
-// import app.model.operation.BinaryOperation;
-// import app.service.QuestionGenerator;
+import app.model.operation.BinaryOperation;
+import app.service.QuestionGenerator;
 
-// /**
-//  *      加法专项练习
-//  */
-// public class AdditionExercise extends Exercise {
-//     private int maxSum; // 和的最大值
+/**
+ *      加法专项练习
+ */
+public class AdditionExercise extends Exercise {
     
-//     public AdditionExercise(int maxSum) {
-//         super();
-//         this.maxSum = maxSum;
-//     }
+    public AdditionExercise(int maxSum) {
+        super();
+    }
     
-//     // 重写方法：生成指定习题数量的习题集
-//     @Override
-//     public void generateExercise(int count) {
-//         QuestionGenerator generator = new QuestionGenerator();
-//         // 生成习题集，传入指定的习题数量和结果的最大值
-//         List<BinaryOperation> problems = generator.generateAdditionQuestions(count, maxSum);
-//         for (BinaryOperation problem : problems) {
-//             addProblem(problem);
-//         }
-//     }
-// }
+    /**
+     * 生成习题
+     * @param count 题目数量
+     */
+    @Override
+    public void generateExercise(int count) {
+        QuestionGenerator generator = new QuestionGenerator();
+        List<BinaryOperation> generatedProblems = generator.generateAdditionQuestion(count);
+
+        // 直接将生成的题目列表添加到 Exercise 的 problems 字段中
+        this.problems.clear(); // 如果之前有题目，先清空
+        this.problems.addAll(generatedProblems);
+    }
+}
 

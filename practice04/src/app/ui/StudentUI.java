@@ -51,7 +51,7 @@ public class StudentUI {
 			// Arrays.asList("1","2","3") → 生成一个 List<String> ["1","2","3"] 不可变长
 			// new HashSet<>(...) → 用这个 List 初始化一个 HashSet
 			// 最终得到一个 HashSet<String>，里面的元素是 "1", "2", "3"，没有重复，顺序不保证。
-			String choice = InputHelper.readOption(scanner, "请输入选项序号：", new HashSet<>(Arrays.asList("1","2","3")));
+			String choice = InputHelper.readOption(scanner, "请输入学生菜单选项序号：", new HashSet<>(Arrays.asList("1","2","3")));
 			if ("1".equals(choice)) {
 				startExamFlow();
 			} else if ("2".equals(choice)) {
