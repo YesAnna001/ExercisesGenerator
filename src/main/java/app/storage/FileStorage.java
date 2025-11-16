@@ -2,7 +2,9 @@ package app.storage;
 
 import app.model.AttemptRecord;
 import app.model.QuestionBank;
+import app.model.operation.Addition;
 import app.model.operation.BinaryOperation;
+import app.model.operation.Subtraction;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +41,68 @@ public class FileStorage {
 		this.attemptsDir = new File(dataDir, "attempts");
 		ensureDirs();
 	}
+
+
+	/**
+     * 从 CSV 文件读取题目，生成 BinaryOperation 列表
+     *
+	 * @param path CSV 文件路径
+     * @return BinaryOperation 列表，若失败返回空列表
+     */
+	public static List<BinaryOperation> loadFromCSV(String path) {
+		List<BinaryOperation> list = new ArrayList<>();
+		File file = new File(path);
+
+		// 如果相对路径找不到，尝试绝对路径
+		if (!file.exists()) {
+			//System.getProperty("user.dir")：获取程序当前工作目录
+			file = new File(System.getProperty("user.dir"), path);
+		}
+
+		if (!file.exists() || !file.isFile()) {
+			System.out.println("文件不存在或路径错误：" + path);
+			return list;
+		}
+
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				line = line.trim();
+				if (line.isEmpty()) continue;
+
+				String[] parts = line.split(",");
+				if (parts.length != 3) {
+					System.out.println("CSV 格式错误（每行应为 左操作数,运算符,右操作数）： " + line);
+					continue;
+				}
+
+				try {
+					int left = Integer.parseInt(parts[0].trim());
+					String op = parts[1].trim();
+					int right = Integer.parseInt(parts[2].trim());
+
+					BinaryOperation binOp = null;
+					if (op.equals("+")) {
+						binOp = new Addition(left, right,left+right);
+					} else if (op.equals("-")) {
+						binOp = new Subtraction(left, right, left - right);
+					} else {
+						System.out.println("不支持的运算符：" + op);
+						continue;
+					}
+
+					list.add(binOp);
+				} catch (NumberFormatException e) {
+					System.out.println("数字格式错误：" + line);
+				}
+			}
+		} catch (IOException e) {
+			System.out.println("读取 CSV 文件失败：" + e.getMessage());
+		}
+
+		return list;
+	}
+
 
 	/**
 	 * 确保必要的目录和文件存在

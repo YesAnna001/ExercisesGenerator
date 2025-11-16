@@ -29,6 +29,18 @@ public abstract class BinaryOperation {
         this.answer = answer;
     }
 
+    // 新增构造方法（不带答案，自动计算）
+    public BinaryOperation(int left, int right, char op) {
+        this.left = left;
+        this.right = right;
+        this.op = op;
+        this.answer = calculateAnswer();
+    }
+
+    // 抽象方法，由子类实现计算答案
+    protected abstract int calculateAnswer();
+
+
     /** 获取运算符 */
     public char getOp() {
         return op;

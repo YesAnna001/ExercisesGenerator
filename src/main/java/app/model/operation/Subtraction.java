@@ -8,6 +8,16 @@ public class Subtraction extends BinaryOperation {
     }
 
 
+    // 不用传入答案的构造函数
+    public Subtraction(int left, int right) {
+        super(left, right, '-'); // 传入运算符
+    }
+
+    @Override
+    protected int calculateAnswer() {
+        return left - right;
+    }
+
     // 重写方法：验证一道减法算式a是否有效
     // 要求：相减不能小于0 ，两个操作数在1-100以内
     @Override

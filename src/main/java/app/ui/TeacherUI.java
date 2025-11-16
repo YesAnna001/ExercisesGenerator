@@ -72,25 +72,81 @@ public class TeacherUI {
      * 用户输入题目数量，生成题库并保存
      */
     private void createBank() {
-        // 1.选择题型
-        String choice = chooseExerciseType();
-        if (choice == null) return; // 用户回车 → 返回教师菜单
-    
-        // 2.输入题目数量
-        Integer n = readCountOrBack();
-        if (n == null) return; // 用户回车 → 返回题型选择（教师菜单）
-        // 3.创建 Exercise 并生成题目
-        Exercise exercise = createExerciseByChoice(choice);
-        if (exercise == null) {
-            System.out.println("无法创建练习，请重试！");
+        // 选择题目来源 1. 从本地导入csv文件 2. 系统自动生成
+        String source = chooseExerciseSource();
+        if (source == null) return;
+
+        if (source.equals("1")) {
+            // 从 CSV 导入
+            exercisesFromCSV();
+        } else if (source.equals("2")) {
+            // 系统生成
+            String choice = chooseExerciseType();
+            if (choice == null) return;
+
+            Integer n = readCountOrBack();
+            if (n == null) return;
+
+            Exercise exercise = createExerciseByChoice(choice);
+            if (exercise == null) {
+                System.out.println("无法创建练习，请重试！");
+                return;
+            }
+            saveBank(exercise,n);
+        }
+    }
+
+    /**
+     * 系统随机生成题库
+     */
+    private void exercisesFromRandomlyGenerate() {
+
+    }
+
+
+    /**
+     * 从本地导入csv文件来生成题库
+     */
+    private void exercisesFromCSV() {
+        System.out.print("请输入 CSV 文件路径（例如 D:\\questions.csv）：");
+        String path = scanner.nextLine().trim();
+        if (path.isEmpty()) {
+            System.out.println("未输入路径，操作取消。");
             return;
         }
-        // 4.生成题目、打印、保存
-        saveBank(exercise, n);
-    }
-    
 
-/**
+        // 从 CSV 文件加载题目
+        List<BinaryOperation> problems = FileStorage.loadFromCSV(path);
+        if (problems == null || problems.isEmpty()) {
+            System.out.println("CSV 文件无题目或路径错误！");
+            return;
+        }
+
+        System.out.println("已导入 CSV 文件题目：");
+        printQuestions6PerLine(problems);
+
+        // 创建题库元信息
+        String id = teacher.getUsername() + "_" + System.currentTimeMillis();
+        QuestionBank bank = new QuestionBank(id, System.currentTimeMillis(), problems.size(),
+                teacher.getUsername(), false, 0L, "CSV导入");
+        storage.saveNewBank(bank, problems);
+
+        System.out.println("题库已保存！");
+    }
+
+
+    private String chooseExerciseSource() {
+        System.out.printf("%s\n", "1. 从本地导入csv文件");
+        System.out.printf("%s\n", "2. 系统自动生成");
+        return InputHelper.readOptionOrEmpty(
+                scanner,
+                "请选择习题生成方式：",
+                new HashSet<>(Arrays.asList("1", "2"))
+        );
+    }
+
+
+    /**
  * 显示题型菜单并读取用户选择
  * @return 用户选择的字符串 "1","2","3"，或 null（表示回车返回）
  */
