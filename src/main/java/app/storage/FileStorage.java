@@ -304,7 +304,6 @@ public class FileStorage {
 			if (line.trim().isEmpty()) continue;
 			AttemptRecord r = AttemptRecord.fromCsv(line);
 			if (r != null) out.add(r);
-			System.out.println("打印每一行：" + line);
 		}
 		return out;
 	}

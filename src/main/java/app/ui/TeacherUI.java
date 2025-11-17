@@ -209,7 +209,7 @@ private void saveBank(Exercise exercise, int n) {
     String id = teacher.getUsername() + "_" + System.currentTimeMillis();
     String type = exercise.getType();
     QuestionBank bank = new QuestionBank(id, System.currentTimeMillis(), n, teacher.getUsername(), false, 0L,type);
-    System.out.println("bank类型："+ bank.getType());
+//    System.out.println("bank类型："+ bank.getType());
     // 保存到本地（storage.saveNewBank 假设存在并可用）
     storage.saveNewBank(bank, exercise.getProblems());
 }

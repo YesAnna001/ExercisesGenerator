@@ -98,8 +98,7 @@ public class StudentUI {
 	
 		// 4. 根据该题库的id加载题库内的所有题目
 		List<BinaryOperation> qs = storage.loadQuestions(bank.getId());
-		printQuestions6PerLine(qs);
-	
+
 		System.out.println("----------------------------------------------------------");
 		System.out.println("是否开始答题？");
 		String c = InputHelper.readOptionOrEmpty(scanner, "1. 开始答题   2. 退出\n",
