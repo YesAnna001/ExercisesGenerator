@@ -9,14 +9,14 @@ public class ColorTextUtil {
     private static final Map<String, String> COLOR_MAP = new HashMap<>();
 
     static {
-        COLOR_MAP.put("黑色", "30");
-        COLOR_MAP.put("红色", "31");
-        COLOR_MAP.put("绿色", "32");
-        COLOR_MAP.put("黄色", "33");
-        COLOR_MAP.put("蓝色", "34");
-        COLOR_MAP.put("紫红色", "35");
-        COLOR_MAP.put("青蓝色", "36");
-        COLOR_MAP.put("白色", "37");
+        COLOR_MAP.put("black", "30");
+        COLOR_MAP.put("red", "31");
+        COLOR_MAP.put("green", "32");
+        COLOR_MAP.put("yellow", "33");
+        COLOR_MAP.put("blue", "34");
+        COLOR_MAP.put("purplish-red", "35");
+        COLOR_MAP.put("Cyan", "36");
+        COLOR_MAP.put("white", "37");
     }
 
     /**

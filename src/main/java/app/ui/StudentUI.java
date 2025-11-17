@@ -45,13 +45,16 @@ public class StudentUI {
 	 */
 	public void run() {
 		while (true) {
-			System.out.println();
-			System.out.println("----------------------------------------------------------");
-			System.out.println("学生菜单：");
-			System.out.println("1. 开始考试");
-			System.out.println("2. 查看成绩");
-			System.out.println("3. 注销");
-			System.out.println("----------------------------------------------------------");
+
+			String border = ColorTextUtil.color("----------------------------------------------------------", "blue");
+			System.out.println(border);
+			System.out.println(ColorTextUtil.color(String.format("| %-51s |", "学生菜单"), "blue"));
+			System.out.println(border);
+			System.out.println(ColorTextUtil.color(String.format("| %-51s |", "1. 开始考试"), "blue"));
+			System.out.println(ColorTextUtil.color(String.format("| %-51s |", "2. 查看成绩"), "blue"));
+			System.out.println(ColorTextUtil.color(String.format("| %-52s |", "3. 注销"), "blue"));
+			System.out.println(border);
+
 			// Arrays.asList("1","2","3") → 生成一个 List<String> ["1","2","3"] 不可变长
 			// new HashSet<>(...) → 用这个 List 初始化一个 HashSet
 			// 最终得到一个 HashSet<String>，里面的元素是 "1", "2", "3"，没有重复，顺序不保证。
@@ -101,7 +104,7 @@ public class StudentUI {
 		List<BinaryOperation> qs = storage.loadQuestions(bank.getId());
 
 		System.out.println("----------------------------------------------------------");
-		System.out.println("是否开始答题？");
+		System.out.println(ColorTextUtil.color("是否开始答题？","red"));
 		String c = InputHelper.readOptionOrEmpty(scanner, "1. 开始答题   2. 退出\n",
 				new HashSet<>(Arrays.asList("1", "2")));
 		if (c == null || "2".equals(c)) {
@@ -218,8 +221,8 @@ public class StudentUI {
 		}
 
 		System.out.println("----------------------------------------------------------");
-		String rightIcon = ColorTextUtil.color("✔️","绿色");
-		String wrongIcon = ColorTextUtil.color("✖","红色");
+		String rightIcon = ColorTextUtil.color("✔","green");
+		String wrongIcon = ColorTextUtil.color("✖","red");
 		// 6. 循环打印每道题的详细信息
 		for (int i = 0; i < qs.size(); i++) {
 			BinaryOperation q = qs.get(i);
@@ -251,14 +254,24 @@ public class StudentUI {
 	 */
 	private String buildTitleByBank(String bankId, int total) {
 		QuestionBank bank = storage.loadBank(bankId);
-		if(bank != null) {
-			String type = bank.getTypeDisplayName();
-			if(type != null && !type.trim().isEmpty()){
-				return "100以内" + type + total + "道题";
+		if (bank != null) {
+			String type = bank.getType();
+			if (type != null && !type.trim().isEmpty()) {
+				switch (type) {
+					case "add":
+						return "100以内加法专项练习" + total + "道题";
+					case "sub":
+						return "100以内减法专项练习" + total + "道题";
+					case "mix":
+						return "100以内加减混合练习" + total + "道题";
+					default:
+						return type;
+				}
 			}
 		}
 		return "练习" + total + "道题";
 	}
+
 
 	/**
 	 * 每行打印6道题目

@@ -8,6 +8,7 @@ import app.model.exercise.MixedExercise;
 import app.model.exercise.SubtractionExercise;
 import app.model.operation.BinaryOperation;
 import app.storage.FileStorage;
+import app.util.ColorTextUtil;
 
 import java.io.File;
 import java.util.*;
@@ -42,15 +43,17 @@ public class TeacherUI {
      */
     public void run() {
         while (true) {
-			String border = "----------------------------------------------------------";
-			System.out.println(border);
-			System.out.printf("| %-51s |\n", "教师菜单");
-			System.out.println(border);
-			System.out.printf("| %-50s |\n", "1. 创建练习题");
-			System.out.printf("| %-50s |\n", "2. 查看练习题");
-			System.out.printf("| %-50s |\n", "3. 发布练习题");
-			System.out.printf("| %-53s |\n", "4. 注销");
-			System.out.println(border);
+            int length = 58; // 想要的边框长度
+            String border = ColorTextUtil.color("-".repeat(length), "blue");
+            System.out.println(border);
+            System.out.println(ColorTextUtil.color(String.format("| %-51s |", "教师菜单"), "blue"));
+            System.out.println(border);
+            System.out.println(ColorTextUtil.color(String.format("| %-50s |", "1. 创建练习题"), "blue"));
+            System.out.println(ColorTextUtil.color(String.format("| %-50s |", "2. 查看练习题"), "blue"));
+            System.out.println(ColorTextUtil.color(String.format("| %-50s |", "3. 发布练习题"), "blue"));
+            System.out.println(ColorTextUtil.color(String.format("| %-52s |", "4. 注销"), "blue"));
+            System.out.println(border);
+
             String choice = InputHelper.readOption(scanner, "请输入教师菜单选项序号：", new HashSet<>(Arrays.asList("1","2","3","4")));
             switch (choice) {
                 case "1":
@@ -78,9 +81,7 @@ public class TeacherUI {
         if (source == null) return;
 
         if (source.equals("1")) {
-            // 从 CSV 导入
-            exercisesFromCSV();
-        } else if (source.equals("2")) {
+
             // 系统生成
             String choice = chooseExerciseType();
             if (choice == null) return;
@@ -94,6 +95,9 @@ public class TeacherUI {
                 return;
             }
             saveBank(exercise,n);
+        } else if (source.equals("2")) {
+            // 从 CSV 导入
+            exercisesFromCSV();
         }
     }
 
@@ -140,8 +144,8 @@ public class TeacherUI {
 
 
     private String chooseExerciseSource() {
-        System.out.printf("%s\n", "1. 从本地导入csv文件");
-        System.out.printf("%s\n", "2. 系统自动生成");
+        System.out.printf("%s\n", "1. 系统自动生成");
+        System.out.printf("%s\n", "2. 从本地导入csv文件");
         return InputHelper.readOptionOrEmpty(
                 scanner,
                 "请选择习题生成方式：",
@@ -214,16 +218,16 @@ private void saveBank(Exercise exercise, int n) {
     storage.saveNewBank(bank, exercise.getProblems());
 }
 
-    
+
 
     /**
-     * 查看题库流程
+     * 查看题库
      * 显示题库列表并允许查看详情
      */
     private void viewBanks() {
         List<QuestionBank> list = storage.loadAllBanks();
         if (list.isEmpty()) {
-            System.out.println("暂无题库。");
+            System.out.println(ColorTextUtil.color("暂无题库。","red"));
             return;
         }
 
@@ -233,7 +237,7 @@ private void saveBank(Exercise exercise, int n) {
         if (idx == null) return; // 用户回车返回
 
         QuestionBank bank = list.get(idx);
-		System.out.println("----------------------------------------------------------");
+		System.out.println("-".repeat(80));
         System.out.println("创建时间：" + FileStorage.formatTime(bank.getCreatedAtMs()));
         System.out.println("题目数量：" + bank.getCount());
         System.out.println("创建人：" + bank.getCreator());
@@ -281,19 +285,36 @@ private void saveBank(Exercise exercise, int n) {
      */
     private void printBankList(List<QuestionBank> list, boolean withStatus) {
         // 列宽：序号 4，创建时间 20，数量 6，创建人 10，发布状态 8，题库类型 12
-        System.out.printf("%-4s | %-20s | %-6s | %-10s | %-8s | %-12s%n",
+        String border = ColorTextUtil.color("-".repeat(105), "blue");
+        System.out.println(border);
+        System.out.printf("| %-4s | %-20s | %-6s | %-10s | %-10s | %-12s |\n",
                 "序号", "创建时间", "数量", "创建人", "发布状态", "题库类型");
-        
+        System.out.println(border);
+
         for (int i = 0; i < list.size(); i++) {
             QuestionBank b = list.get(i);
             String time = FileStorage.formatTime(b.getCreatedAtMs());
-            String status = withStatus ? (b.isPublished() ? "已发布" : "未发布") : "";
-            String typeName = b.getTypeDisplayName();
-            
-            System.out.printf("%-6d | %-24s | %-8d | %-13s | %-9s | %-10s%n",
-                    i + 1, time, b.getCount(), b.getCreator(), status, typeName);
+
+            // 设置颜色
+            String status = "";
+            if (withStatus) {
+                status = b.isPublished()
+                        ? ColorTextUtil.color("已发布", "green")
+                        : ColorTextUtil.color("未发布", "red");
+            }
+
+            // 打印每行，注意加空格保证对齐（颜色序列不占可见宽度，但占字符长度）
+            System.out.printf("| %-5d | %-24s | %-6d | %-12s | %-22s | %-20s |\n",
+                    i + 1,
+                    time,
+                    b.getCount(),
+                    b.getCreator(),
+                    status,
+                    b.getTypeDisplayName());
         }
+        System.out.println(border);
     }
+
     
 
     /**

@@ -404,7 +404,7 @@ public class FileStorage {
 			if (line.startsWith("id,")) continue;
 			if (line.trim().isEmpty()) continue;
 			String[] a = line.split(",");
-			if (a.length < 7) continue; // 确保包含 type 字段
+			if (a.length < 7) continue;
 			if (bankId.equals(a[0])) {
 				String id = a[0];
 				long created = parseLong(a[1]);
