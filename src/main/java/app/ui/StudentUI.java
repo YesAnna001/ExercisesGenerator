@@ -11,6 +11,8 @@ import app.model.operation.BinaryOperation;
 import app.storage.FileStorage;
 import app.util.ColorTextUtil;
 import app.util.TimeUtils;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 
 import java.util.*;
 
@@ -139,6 +141,7 @@ public class StudentUI {
 		System.out.println("已成功提交！");
 		System.out.println("正确题数：" + correct + "/" + total + "    得分：" + score + " 分（满分100）" + "    答题时长：" + spentTimeFormated);
 	}
+
 
 	/**
 	 * 循环展示题目，获取用户答案，并生成答题记录列表
@@ -286,6 +289,7 @@ public class StudentUI {
 			if ((i+1) % 6 == 0 || i == questions.size()-1) System.out.println();
 		}
 	}
+
 
 	/**
 	 * 根据题库的type字段格式化显示的描述信息
