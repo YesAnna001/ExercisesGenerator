@@ -242,7 +242,10 @@ public class FileStorage {
 	 */
 	//TODO
 	public void saveAttemptAndScore(String bankId, String student, List<AttemptRecord> records, Long spentTime) {
-		File aFile = new File(attemptsDir, bankId + "_" + student + ".csv");
+		// 以时间戳作为唯一标识，可以直接通过该时间戳定位具体的 attempts 文件
+		// 避免同一个学生做同一套题目时临时记录表被覆盖
+		long submittedAt = System.currentTimeMillis();
+		File aFile = new File(attemptsDir, bankId + "_" + student + "_"+ submittedAt +  ".csv");
 		List<String> lines = new ArrayList<>();
 		lines.add("index,myAnswer,correctAnswer,correct");
 		int correct = 0;
@@ -260,7 +263,7 @@ public class FileStorage {
 			String.valueOf(total),
 			//Locale.ROOT：确保格式化统一，不受地区语言限制
 			String.format(Locale.ROOT, "%.4f", acc),
-			String.valueOf(System.currentTimeMillis()),
+			String.valueOf(submittedAt),
 			String.valueOf(spentTime) // 保存本套题做题耗时
 		));
 	}
@@ -297,6 +300,28 @@ public class FileStorage {
 	 */
 	public List<AttemptRecord> loadAttempt(String bankId, String student) {
 		File aFile = new File(attemptsDir, bankId + "_" + student + ".csv");
+		List<String> lines = readAllLines(aFile);
+		List<AttemptRecord> out = new ArrayList<>();
+		for (String line : lines) {
+			if (line.startsWith("index,")) continue;
+			if (line.trim().isEmpty()) continue;
+			AttemptRecord r = AttemptRecord.fromCsv(line);
+			if (r != null) out.add(r);
+		}
+		return out;
+	}
+
+
+	/**
+	 * 加载指定学生对于指定题库、指定提交时间的答题记录
+	 *
+	 * @param bankId 题库ID
+	 * @param student 学生用户名
+	 * @param submittedAtMs 提交时间（文件名中的时间戳）
+	 * @return 答题记录列表（若找不到返回空列表）
+	 */
+	public List<AttemptRecord> loadAttempt(String bankId, String student, long submittedAtMs) {
+		File aFile = new File(attemptsDir, bankId + "_" + student + "_" + submittedAtMs + ".csv");
 		List<String> lines = readAllLines(aFile);
 		List<AttemptRecord> out = new ArrayList<>();
 		for (String line : lines) {
