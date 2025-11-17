@@ -170,7 +170,7 @@ public class StudentUI {
 		}
 
 		// 2. 打印成绩表头
-		System.out.printf("%-4s | %-24s | %-19s | %-10s | %-10s | %-6s%n",
+		System.out.printf("%-4s | %-28s | %-22s | %-11s | %-10s | %-6s%n",
 				"序号", "标题", "提交时间", "答题时长", "正确/总数", "分数");
 
 		// 3. 循环打印每条成绩记录表信息
@@ -186,7 +186,7 @@ public class StudentUI {
 			String title = buildTitleByBank(bankId, total);
 
 			// 格式化输出，每列宽度固定
-			System.out.printf(Locale.ROOT, "%-4d | %-24s | %-19s | %-10s | %3d/%-6d | %3d%n",
+			System.out.printf(Locale.ROOT, "%-4d | %-24s | %-24s | %-10s | %3d/%-8d | %3d%n",
 					i + 1,
 					title,
 					FileStorage.formatTime(submitAt),

@@ -237,12 +237,18 @@ private void saveBank(Exercise exercise, int n) {
         if (idx == null) return; // 用户回车返回
 
         QuestionBank bank = list.get(idx);
-		System.out.println("-".repeat(80));
-        System.out.println("创建时间：" + FileStorage.formatTime(bank.getCreatedAtMs()));
-        System.out.println("题目数量：" + bank.getCount());
-        System.out.println("创建人：" + bank.getCreator());
-        System.out.println("发布状态：" + (bank.isPublished() ? "已发布" : "未发布"));
-        System.out.println("题库类型："  + bank.getTypeDisplayName());
+		System.out.println("-".repeat(58));
+        System.out.println(ColorTextUtil.color("创建时间：", "blue") + FileStorage.formatTime(bank.getCreatedAtMs()));
+        System.out.println(ColorTextUtil.color("题目数量：", "blue") + bank.getCount());
+        System.out.println(ColorTextUtil.color("创建人：", "blue") + bank.getCreator());
+
+        // 发布状态单独处理颜色
+        String status = bank.isPublished()
+                ? ColorTextUtil.color("已发布", "green")
+                : ColorTextUtil.color("未发布", "red");
+        System.out.println(ColorTextUtil.color("发布状态：", "blue") + status);
+
+        System.out.println(ColorTextUtil.color("题库类型：", "blue") + bank.getTypeDisplayName());
 
         List<BinaryOperation> qs = storage.loadQuestions(bank.getId());
         printQuestions6PerLine(qs);
@@ -276,6 +282,7 @@ private void saveBank(Exercise exercise, int n) {
         storage.updateBankPublished(bank.getId(), true, System.currentTimeMillis());
         System.out.println("发布成功！");
     }
+
 
     /**
      * 打印题库列表
