@@ -78,7 +78,7 @@ public class StudentUI {
 		// 1. 加载所有已发布的答题库
 		List<QuestionBank> pubs = storage.loadPublishedBanksAscByPublishedTime();
 		if (pubs.isEmpty()) {
-			System.out.println("暂无已发布题库。");
+			System.out.println(ColorTextUtil.color("暂无已发布题库。","yellow"));
 			return;
 		}
 
@@ -96,7 +96,7 @@ public class StudentUI {
 		}
 
 		// 2. 获取用户选择的题库序号
-		Integer idx = InputHelper.readOptionalIndex(scanner, "请选择答题题库序号（或直接回车返回）：", pubs.size());
+		Integer idx = InputHelper.readOptionalIndex(scanner, "请选择答题题库序号：", pubs.size());
 		if (idx == null) return;
 
 		// 3. 根据序号在list中寻找该题库
@@ -138,7 +138,7 @@ public class StudentUI {
 		long correct = records.stream().filter(AttemptRecord::isCorrect).count();
 		int total = records.size();
 		int score = total == 0 ? 0 : (int) Math.round(correct * 100.0 / total);
-		System.out.println("已成功提交！");
+		System.out.println(ColorTextUtil.color("已成功提交！","yellow"));
 		System.out.println("正确题数：" + correct + "/" + total + "    得分：" + score + " 分（满分100）" + "    答题时长：" + spentTimeFormated);
 	}
 
@@ -168,7 +168,7 @@ public class StudentUI {
 		List<String[]> list = storage.loadScoresByStudent(student.getUsername());
 		System.out.println("----------------------------------------------------------");
 		if (list.isEmpty()) {
-			System.out.println("暂无成绩。");
+			System.out.println(ColorTextUtil.color("暂无成绩。","yellow"));
 			return;
 		}
 
@@ -201,7 +201,7 @@ public class StudentUI {
 		}
 		// -----------------------------用户选择了查看成绩的具体内容-----------------------------------
 		// 4. 获取用户要查看的列表序号
-		Integer idx = InputHelper.readOptionalIndex(scanner, "请选择序号查看答题详情（或直接回车返回）：", list.size());
+		Integer idx = InputHelper.readOptionalIndex(scanner, "请选择序号查看答题详情：", list.size());
 		if (idx == null) return;
 
 		// 5. 获取题库ID、提交时间和题目列表（根据提交时间加载对应的 attempts 文件）

@@ -91,7 +91,7 @@ public class TeacherUI {
 
             Exercise exercise = createExerciseByChoice(choice);
             if (exercise == null) {
-                System.out.println("无法创建练习，请重试！");
+                System.out.println(ColorTextUtil.color("无法创建练习，请重试！","red"));
                 return;
             }
             saveBank(exercise,n);
@@ -116,18 +116,18 @@ public class TeacherUI {
         System.out.print("请输入 CSV 文件路径（例如 D:\\questions.csv）：");
         String path = scanner.nextLine().trim();
         if (path.isEmpty()) {
-            System.out.println("未输入路径，操作取消。");
+            System.out.println(ColorTextUtil.color("未输入路径，操作取消。","yellow"));
             return;
         }
 
         // 从 CSV 文件加载题目
         List<BinaryOperation> problems = FileStorage.loadFromCSV(path);
         if (problems == null || problems.isEmpty()) {
-            System.out.println("CSV 文件无题目或路径错误！");
+            System.out.println(ColorTextUtil.color("CSV 文件无题目或路径错误！","red"));
             return;
         }
 
-        System.out.println("已导入 CSV 文件题目：");
+        System.out.println(ColorTextUtil.color("已成功导入题库！","green"));
         printQuestions6PerLine(problems);
 
         // 取文件名作为 type
@@ -139,7 +139,7 @@ public class TeacherUI {
                 teacher.getUsername(), false, 0L, type);
         storage.saveNewBank(bank, problems);
 
-        System.out.println("题库已保存！");
+        System.out.println(ColorTextUtil.color("题库已保存！","green"));
     }
 
 
@@ -165,7 +165,7 @@ private String chooseExerciseType() {
 
     return InputHelper.readOptionOrEmpty(
         scanner,
-        "请输入要生成的习题选项序号(或回车退出)：",
+        "请输入要生成的习题选项序号：",
         new HashSet<>(Arrays.asList("1", "2", "3"))
     );
 }
@@ -177,7 +177,7 @@ private String chooseExerciseType() {
 private Integer readCountOrBack() {
     return InputHelper.readIntInRangeOrEmpty(
         scanner,
-        "请输入生成题目数量（1-100）（或回车退出）：",
+        "请输入生成题目数量（1-100）：",
         1,
         100
     );
@@ -206,7 +206,7 @@ private void saveBank(Exercise exercise, int n) {
     // 生成题目
     exercise.generateExercise(n); //BUG
     // 打印提示与题目
-    System.out.println("已生成题库并保存！");
+    System.out.println(ColorTextUtil.color("已生成题库并保存！","green"));
     printQuestions6PerLine(exercise.getProblems());
 
     // 创建题库元信息（id、时间等）
@@ -225,19 +225,29 @@ private void saveBank(Exercise exercise, int n) {
      * 显示题库列表并允许查看详情
      */
     private void viewBanks() {
-        List<QuestionBank> list = storage.loadAllBanks();
+        // 加载所有题库
+        List<QuestionBank> allBanks = storage.loadAllBanks();
+
+        // 只保留当前教师自己创建的题库
+        List<QuestionBank> list = new ArrayList<>();
+        for (QuestionBank bank : allBanks) {
+            if (teacher.getUsername().equals(bank.getCreator())) {
+                list.add(bank);
+            }
+        }
+
         if (list.isEmpty()) {
-            System.out.println(ColorTextUtil.color("暂无题库。","red"));
+            System.out.println(ColorTextUtil.color("暂无您创建的题库。", "yellow"));
             return;
         }
 
         printBankList(list, true);
 
-        Integer idx = InputHelper.readOptionalIndex(scanner, "请选择练习题查看详情（或直接回退出）：", list.size());
+        Integer idx = InputHelper.readOptionalIndex(scanner, "请选择练习题查看详情：", list.size());
         if (idx == null) return; // 用户回车返回
 
         QuestionBank bank = list.get(idx);
-		System.out.println("-".repeat(58));
+        System.out.println("-".repeat(58));
         System.out.println(ColorTextUtil.color("创建时间：", "blue") + FileStorage.formatTime(bank.getCreatedAtMs()));
         System.out.println(ColorTextUtil.color("题目数量：", "blue") + bank.getCount());
         System.out.println(ColorTextUtil.color("创建人：", "blue") + bank.getCreator());
@@ -257,31 +267,46 @@ private void saveBank(Exercise exercise, int n) {
 
 
 
+
     /**
      * 发布练习题流程
      * 用户选择未发布题库进行发布
      */
     private void publishFlow() {
-        List<QuestionBank> list = storage.loadAllBanks();
+        // 加载所有题库
+        List<QuestionBank> allBanks = storage.loadAllBanks();
+
+        // 只保留当前教师自己创建的题库
+        List<QuestionBank> list = new ArrayList<>();
+        for (QuestionBank bank : allBanks) {
+            if (teacher.getUsername().equals(bank.getCreator())) {
+                list.add(bank);
+            }
+        }
+
         if (list.isEmpty()) {
-            System.out.println("暂无题库。");
+            System.out.println(ColorTextUtil.color("暂无您创建的题库。", "red"));
             return;
         }
 
+        // 打印列表
         printBankList(list, true);
 
-        Integer idx = InputHelper.readOptionalIndex(scanner, "请选择练习题序号进行发布（或直接回车返回）：", list.size());
+        Integer idx = InputHelper.readOptionalIndex(scanner, "请选择练习题序号进行发布：", list.size());
         if (idx == null) return; // 用户回车返回
 
         QuestionBank bank = list.get(idx);
+
         if (bank.isPublished()) {
-            System.out.println("该题库已发布，无需重复发布！");
+            System.out.println(ColorTextUtil.color("该题库已发布，无需重复发布","yellow"));
             return;
         }
 
+        // 更新发布状态
         storage.updateBankPublished(bank.getId(), true, System.currentTimeMillis());
-        System.out.println("发布成功！");
+        System.out.println(ColorTextUtil.color("发布成功！", "green"));
     }
+
 
 
     /**

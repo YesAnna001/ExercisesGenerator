@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="exercisesGenerator:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/exercisesGenerator_jar</output-path>
+    <root id="archive" name="exercisesGenerator.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="exercisesGenerator" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../maven-local-repository/org/jline/jline/3.24.0/jline-3.24.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

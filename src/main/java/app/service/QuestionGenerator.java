@@ -19,7 +19,6 @@ public class QuestionGenerator {
      * 构造方法，初始化 OperationBase（最大值 100）
      */
     public QuestionGenerator() {
-        System.out.println("加载 QuestionGenerator 新版本");
         this.opBase = new OperationBase(100);
     }
 
@@ -58,11 +57,11 @@ public class QuestionGenerator {
         return exercises;
     }
 
-        /**
+    /**
      * 生成指定数量的减法算式列表
      * @param count 题目数量
      * @return  返回一个减法算式列表
-     */
+     * */
     public List<BinaryOperation> generateSubtractionQuestion(int count){
         List<BinaryOperation> exercises =  new ArrayList<>();
         for (int i = 0; i < count; i++) {
