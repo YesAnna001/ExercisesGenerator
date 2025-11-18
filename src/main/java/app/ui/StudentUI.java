@@ -14,6 +14,7 @@ import app.util.TimeUtils;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 
+import java.nio.charset.CoderResult;
 import java.util.*;
 
 /**
@@ -155,7 +156,16 @@ public class StudentUI {
 			int answer = InputHelper.readInt(scanner, "(" + exercise.getIndex() + ") " + q.toDisplayString());
 			exercise.submitAnswer(answer);
 		}
-		return exercise.toAttemptRecords(exercise.getUserAnswers());
+		System.out.println(ColorTextUtil.color("你确定要提交吗？","red"));
+		String c = InputHelper.readOptionOrEmpty(scanner, "1. 提交   2. 重做\n",
+				new HashSet<>(Arrays.asList("1", "2")));
+		if(c.equals("1")){
+			return exercise.toAttemptRecords(exercise.getUserAnswers());
+		}else{
+			exercise.resetForRedo();
+			return takeExam(exercise); // 再来一遍
+		}
+
 	}
 
 

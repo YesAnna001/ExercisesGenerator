@@ -105,6 +105,21 @@ public abstract class Exercise {
 
 
     /**
+     * 从头开始、清空用户答案，但不重置 startMs（计时继续）。
+     *
+     * 用途：当用户选择重做时调用此方法，题目从第一题开始，之前的开始时间仍然有效，
+     * 并将 endMs 置为 0（表示尚未完成）。
+     */
+    public void resetForRedo() {
+        this.userAnswers.clear();
+        this.index = 0;
+        this.endMs = 0;
+        // 注意：不修改 startMs，保证计时继续累加
+    }
+
+
+
+    /**
      * 是否还有下一题
      * 
      * @return true 表示还有题目，false 表示已经做完
