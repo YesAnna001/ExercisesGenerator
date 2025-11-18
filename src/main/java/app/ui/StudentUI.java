@@ -139,7 +139,7 @@ public class StudentUI {
 		long correct = records.stream().filter(AttemptRecord::isCorrect).count();
 		int total = records.size();
 		int score = total == 0 ? 0 : (int) Math.round(correct * 100.0 / total);
-		System.out.println(ColorTextUtil.color("已成功提交！","yellow"));
+		System.out.println(ColorTextUtil.color("已成功提交！","green"));
 		System.out.println("正确题数：" + correct + "/" + total + "    得分：" + score + " 分（满分100）" + "    答题时长：" + spentTimeFormated);
 	}
 
@@ -198,15 +198,24 @@ public class StudentUI {
 			int score = total == 0 ? 0 : (int) Math.round(correct * 100.0 / total);
 			String title = buildTitleByBank(bankId, total);
 
-			// 格式化输出，每列宽度固定
-			System.out.printf(Locale.ROOT, "%-4d | %-24s | %-24s | %-10s | %3d/%-8d | %3d%n",
+			// 格式化输出，每列宽度固定，分数根据值着色：100 为 green，0 为 red
+			String scoreStr;
+			if (score == 100) {
+				scoreStr = ColorTextUtil.color(String.valueOf(score), "green");
+			} else if (score == 0) {
+				scoreStr = ColorTextUtil.color(String.valueOf(score), "red");
+			} else {
+				scoreStr = String.valueOf(score);
+			}
+
+			System.out.printf(Locale.ROOT, "%-4d | %-24s | %-24s | %-10s | %3d/%-8d | %3s%n",
 					i + 1,
 					title,
 					FileStorage.formatTime(submitAt),
 					spentTimeFormated,
 					correct,
 					total,
-					score
+					scoreStr
 			);
 		}
 		// -----------------------------用户选择了查看成绩的具体内容-----------------------------------
