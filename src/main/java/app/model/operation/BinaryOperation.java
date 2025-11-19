@@ -41,6 +41,9 @@ public abstract class BinaryOperation {
     protected abstract int calculateAnswer();
 
 
+    public int getLeft(){return left;}
+    public int getRight(){return right;}
+
     /** 获取运算符 */
     public char getOp() {
         return op;

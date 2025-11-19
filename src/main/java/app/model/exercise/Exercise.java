@@ -174,6 +174,9 @@ public abstract class Exercise {
     }
 
 
+    public long getStartMs(){return startMs;}
+    public long getEndMs(){return endMs;}
+
     /**
      * 获取答对题目数量
      * 

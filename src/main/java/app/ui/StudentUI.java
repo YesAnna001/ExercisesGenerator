@@ -10,11 +10,9 @@ import app.model.exercise.SubtractionExercise;
 import app.model.operation.BinaryOperation;
 import app.storage.FileStorage;
 import app.util.ColorTextUtil;
+import app.util.InputHelper;
 import app.util.TimeUtils;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
 
-import java.nio.charset.CoderResult;
 import java.util.*;
 
 /**

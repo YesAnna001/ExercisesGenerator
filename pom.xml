@@ -12,46 +12,12 @@
   <name>exercisesGenerator</name>
   <url>http://maven.apache.org</url>
 
-  <!-- Spring Boot 父工程 -->
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.7.12</version>
-    <relativePath/>
-  </parent>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>11</java.version>
   </properties>
 
   <dependencies>
-
-    <!-- 启用 Spring MVC / REST API 基础框架 -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-
-    <!-- 参数校验（如 @NotNull、@Valid 用于 API 请求体校验） -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-
-    <!-- Swagger/OpenAPI：自动生成 API 文档，提供 http://localhost:8080/swagger-ui.html -->
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-ui</artifactId>
-      <version>1.6.15</version>
-    </dependency>
-
-    <!-- Lombok （自动生成 getter/setter，简化实体类）-->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <optional>true</optional>
-    </dependency>
 
     <!-- jline：你当前命令行 UI 使用的库 -->
     <dependency>
@@ -65,6 +31,18 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>RELEASE</version>
+          <scope>test</scope>
+      </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.6.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -84,13 +62,6 @@
         </configuration>
       </plugin>
 
-      <!-- Spring Boot 打包插件：生成可执行 Jar（支持 java -jar 运行） -->
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>2.7.12</version>
-      </plugin>
-
       <!-- Shade 插件：用于打包命令行版本，可以保留，供 CLI 使用 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -106,7 +77,6 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>your.main.ClassIfNeeded</mainClass>
                 </transformer>
               </transformers>
             </configuration>

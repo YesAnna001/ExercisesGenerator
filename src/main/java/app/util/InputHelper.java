@@ -1,4 +1,4 @@
-package app.ui;
+package app.util;
 
 import app.util.ColorTextUtil;
 import java.util.Scanner;
