@@ -113,6 +113,8 @@ public class StudentUI {
 		}
 		System.out.println("----------------------------------------------------------");
 
+		//TODO
+
 		// 5. 创建 Exercise 管理题目，根据题库的类型选择不同的exercise进行管理
 		Exercise exercise = null;
 		String type = bank.getType();
@@ -152,19 +154,37 @@ public class StudentUI {
 		while (exercise.hasNext()) {
 			BinaryOperation q = exercise.next();
 			int answer = InputHelper.readInt(scanner, "(" + exercise.getIndex() + ") " + q.toDisplayString());
+
+			// 处理返回上一题
+			if (answer == -1) {
+				if (exercise.canGoBack()) {
+					// 有上一题：回退并删除上一题的答案，下一轮展示上一题
+					exercise.goBack();
+					System.out.println("已返回上一题，请重新作答。");
+					continue; // 不提交 -1，直接重新循环
+				} else {
+					// 已经是第一题：撤销刚才 next() 的推进，重新出第一题
+					exercise.rewindAfterNext();
+					System.out.println("已经是第一题，无法返回上一题，请重新作答。");
+					continue;
+				}
+			}
+
+			// 正常答案：提交
 			exercise.submitAnswer(answer);
 		}
+
 		System.out.println(ColorTextUtil.color("你确定要提交吗？","red"));
 		String c = InputHelper.readOptionOrEmpty(scanner, "1. 提交   2. 重做\n",
 				new HashSet<>(Arrays.asList("1", "2")));
-		if(c.equals("1")){
+		if ("1".equals(c)) {
 			return exercise.toAttemptRecords(exercise.getUserAnswers());
-		}else{
+		} else {
 			exercise.resetForRedo();
 			return takeExam(exercise); // 再来一遍
 		}
-
 	}
+
 
 
 	/**

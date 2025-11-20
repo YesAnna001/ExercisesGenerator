@@ -13,12 +13,12 @@ import java.util.*;
 
 /**
  * 文件存储服务类
- * 负责题库、题目、答题记录和成绩的持久化存储
+ * 负责习题集、题目、答题记录和成绩的持久化存储
  */
 public class FileStorage {
 	/** 数据目录 */
 	private final File dataDir;
-	/** 题库信息CSV文件 */
+	/** 习题集信息CSV文件 */
 	private final File exercisesCsv;
 	/** 成绩CSV文件 */
 	private final File scoresCsv;
@@ -121,10 +121,10 @@ public class FileStorage {
 	}
 
 	/**
-	 * 加载所有题库
-	 * 从exercises.csv文件中读取所有题库信息，按创建时间升序排序
+	 * 加载所有习题集
+	 * 从exercises.csv文件中读取所有习题集信息，按创建时间升序排序
 	 * 
-	 * @return 题库列表，按创建时间升序排序
+	 * @return 习题集列表，按创建时间升序排序
 	 */
 	public List<QuestionBank> loadAllBanks() {
 		List<QuestionBank> list = new ArrayList<>();
@@ -148,10 +148,10 @@ public class FileStorage {
 	}
 
 	/**
-	 * 加载所有已发布的题库
-	 * 从所有题库中筛选出已发布的题库，按发布时间升序排序
+	 * 加载所有已发布的习题集
+	 * 从所有习题集中筛选出已发布的习题集，按发布时间升序排序
 	 * 
-	 * @return 已发布的题库列表，按发布时间升序排序
+	 * @return 已发布的习题集列表，按发布时间升序排序
 	 */
 	public List<QuestionBank> loadPublishedBanksAscByPublishedTime() {
 		List<QuestionBank> all = loadAllBanks();
@@ -164,10 +164,10 @@ public class FileStorage {
 	}
 
 	/**
-	 * 保存新创建的题库
-	 * 将题库信息保存到exercises.csv，将题目保存到questions目录下的txt文件
+	 * 保存新创建的习题集
+	 * 将习题集习题集信息保存到exercises.csv，将题目保存到questions目录下的txt文件
 	 * 
-	 * @param bank 题库对象
+	 * @param bank 习题集对象
 	 * @param questions 题目列表
 	 */
 	public void saveNewBank(QuestionBank bank, List<BinaryOperation> questions) {
@@ -187,10 +187,10 @@ public class FileStorage {
 	}
 
 	/**
-	 * 更新题库的发布状态
-	 * 更新exercises.csv中指定题库的发布状态和发布时间
+	 * 更新习题集的发布状态
+	 * 更新exercises.csv中指定习题集的发布状态和发布时间
 	 * 
-	 * @param bankId 题库ID
+	 * @param bankId 习题集ID
 	 * @param published 是否发布
 	 * @param publishedAtMs 发布时间（毫秒时间戳）
 	 */
@@ -214,10 +214,10 @@ public class FileStorage {
 	}
 
 	/**
-	 * 加载指定题库的所有题目
-	 * 从questions目录下读取对应题库的题目文件
+	 * 加载指定习题集的所有题目
+	 * 从questions目录下读取对应习题集的题目文件
 	 * 
-	 * @param bankId 题库ID
+	 * @param bankId 习题集ID
 	 * @return 题目列表
 	 */
 	public List<BinaryOperation> loadQuestions(String bankId) {
@@ -236,7 +236,7 @@ public class FileStorage {
 	 * 保存答题记录和成绩
 	 * 将答题记录保存到attempts目录下的CSV文件，将成绩信息追加到scores.csv
 	 * 
-	 * @param bankId 题库ID
+	 * @param bankId 习题集ID
 	 * @param student 学生用户名
 	 * @param records 答题记录列表
 	 */
@@ -273,7 +273,7 @@ public class FileStorage {
 	 * 从scores.csv中筛选出指定学生的成绩记录，按提交时间升序排序
 	 * 
 	 * @param student 学生用户名
-	 * @return 成绩记录列表，每条记录为字符串数组，包含：题库ID、学生名、正确数、总数、准确率、提交时间
+	 * @return 成绩记录列表，每条记录为字符串数组，包含：习题集ID、学生名、正确数、总数、准确率、提交时间
 	 */
 	public List<String[]> loadScoresByStudent(String student) {
 		List<String[]> out = new ArrayList<>();
@@ -291,10 +291,10 @@ public class FileStorage {
 	}
 
 	/**
-	 * 加载指定学生对于指定题库的答题记录
+	 * 加载指定学生对于指定习题集的答题记录
 	 * 从attempts目录下读取对应的答题记录文件
 	 * 
-	 * @param bankId 题库ID
+	 * @param bankId 习题集ID
 	 * @param student 学生用户名
 	 * @return 答题记录列表
 	 */
@@ -313,9 +313,9 @@ public class FileStorage {
 
 
 	/**
-	 * 加载指定学生对于指定题库、指定提交时间的答题记录
+	 * 加载指定学生对于指定习题集、指定提交时间的答题记录
 	 *
-	 * @param bankId 题库ID
+	 * @param bankId 习题集ID
 	 * @param student 学生用户名
 	 * @param submittedAtMs 提交时间（文件名中的时间戳）
 	 * @return 答题记录列表（若找不到返回空列表）
@@ -392,9 +392,9 @@ public class FileStorage {
 	}
 
 	/**
-	 * 根据题库ID加载单个题库元数据
+	 * 根据习题集ID加载单个习题集元数据
 	 *
-	 * @param bankId 题库ID
+	 * @param bankId 习题集ID
 	 * @return 对应的 QuestionBank；找不到或解析失败则返回 null
 	 */
 	public QuestionBank loadBank(String bankId) {

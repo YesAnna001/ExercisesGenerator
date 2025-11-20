@@ -102,13 +102,6 @@ public class TeacherUI {
         }
     }
 
-    /**
-     * 系统随机生成题库
-     */
-    private void exercisesFromRandomlyGenerate() {
-
-    }
-
 
     /**
      * 从本地导入csv文件来生成题库
@@ -134,7 +127,7 @@ public class TeacherUI {
         // 取文件名作为 type
         String name = new File(path).getName();
         String type = name.substring(0, name.lastIndexOf('.'));
-        // 创建题库元信息
+        // 创建习题集元信息
         String id = teacher.getUsername() + "_" + System.currentTimeMillis();
         QuestionBank bank = new QuestionBank(id, System.currentTimeMillis(), problems.size(),
                 teacher.getUsername(), false, 0L, type);

@@ -1,11 +1,11 @@
 package app.model;
 
 /**
- * 题库实体类
- * 表示一个练习题题库，包含题库ID、创建时间、题目数量、创建者以及发布状态等信息
+ * 保存习题集的信息
+ * 表示一个练习题头信息，包含习题集ID、创建时间、题目数量、创建者以及发布状态等信息
  */
 public class QuestionBank {
-	/** 题库唯一标识符，基于时间戳生成 */
+	/** 习题集唯一标识符，基于时间戳生成 */
 	private final String id;
 	/** 创建时间（毫秒时间戳） */
 	private final long createdAtMs;
@@ -23,13 +23,13 @@ public class QuestionBank {
 	/**
 	 * 构造函数
 	 * 
-	 * @param id 题库唯一标识符
+	 * @param id 习题集唯一标识符
 	 * @param createdAtMs 创建时间（毫秒时间戳）
 	 * @param count 题目数量
 	 * @param creator 创建者用户名
 	 * @param published 是否已发布
 	 * @param publishedAtMs 发布时间（毫秒时间戳）
-	 * @param type 题库类型(add/sub/mix)
+	 * @param type 习题集类型(add/sub/mix)
 	 */
 	public QuestionBank(String id, long createdAtMs, int count, String creator, boolean published, long publishedAtMs,String type) {
 		this.id = id;
@@ -42,9 +42,9 @@ public class QuestionBank {
 	}
 
 	/**
-	 * 获取题库ID
+	 * 获取习题集ID
 	 * 
-	 * @return 题库唯一标识符
+	 * @return 习题集唯一标识符
 	 */
 	public String getId() { return id; }
 	
@@ -68,10 +68,9 @@ public class QuestionBank {
 	 * @return 创建者用户名
 	 */
 	public String getCreator() { return creator; }
-	
 
 	/**
-	 * 获取该题库习题类型  
+	 * 获取该习题集习题类型  
 	 * @return
 	 */
 	public String getType(){ return type; }

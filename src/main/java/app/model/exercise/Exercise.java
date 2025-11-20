@@ -91,6 +91,7 @@ public abstract class Exercise {
         return "EX_" + System.currentTimeMillis();
     }
 
+
     // ------- 做题相关方法 -------
     /**
      * 开始做题
@@ -101,6 +102,41 @@ public abstract class Exercise {
         index = 0;
         startMs = System.currentTimeMillis();
         endMs = 0;
+    }
+
+
+    /**
+     * 是否可以返回上一题（如果当前索引 > 1 则可以返回）
+     * 保持原有语义：当 next() 已经被调用并且不是第1题时允许回退
+     */
+    public boolean canGoBack() {
+        return index > 1;
+    }
+
+    /**
+     * 回退到上一题，并移除上一题的已答记录（如果存在）
+     *
+     * 解释：
+     *  - 调用 next() 后 index 会被 ++。例如：在显示第三题时，index 已是 3。
+     *  - 要让下一次 next() 返回第二题（index==1 时 next() 返回 problems[1]），
+     *    这里需要把 index 减 2（3 -> 1）。
+     *  - 因此在这里把 index -= 2（并保护为非负）。
+     */
+    public void goBack() {
+        if (!canGoBack()) return;
+        index = Math.max(0, index - 2); // 倒退两步以让下一次 next() 返回上一题
+        if (!userAnswers.isEmpty()) {
+            userAnswers.remove(userAnswers.size() - 1); // 移除上一题的答案，供重答
+        }
+    }
+
+    /**
+     * 撤销一次 next() 的推进 —— 当用户在第一题输入 -1 时需要调用它，
+     * 因为 next() 已经把 index 前推进过，但不能回退到上一题（没有上一题），
+     * 所以把 index 恢复为调用 next() 之前的值。
+     */
+    public void rewindAfterNext() {
+        if (index > 0) index--;
     }
 
 
@@ -116,8 +152,6 @@ public abstract class Exercise {
         this.endMs = 0;
         // 注意：不修改 startMs，保证计时继续累加
     }
-
-
 
     /**
      * 是否还有下一题
