@@ -95,7 +95,7 @@ public class StudentUI {
 			return;
 		}
 
-		// 显示摘要：序号 | 习题集名称 | 错题数（不显示重做次数）
+		// 显示摘要：序号 | 习题集名称 | 错题数
 		List<String> bankIds = new ArrayList<>(allWrongs.keySet()); // 获取题库列表
 		System.out.printf("%-4s | %-28s | %-10s%n",
 				"序号", "习题集名称", "错题数");
@@ -240,9 +240,6 @@ public class StudentUI {
 		long spentTime = exercise.durationSeconds();
 		String spentTimeFormated = TimeUtils.formatDuration(spentTime);
 		// 7. 存储本次做题的相关信息到本地
-		storage.saveAttemptAndScore(bank.getId(), student.getUsername(), records, spentTime);
-
-		// 保存本次做题的相关信息到本地
 		storage.saveAttemptAndScore(bank.getId(), student.getUsername(), records, spentTime);
 
 		// ======= 新增：收集错题并保存到错题集 =======

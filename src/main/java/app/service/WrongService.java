@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * 错题服务（精简版）
+ * 错题服务
  *
  * - 所有错题相关文件统一放在 data/wrongs/ 目录下
  * - 错题文件： data/wrongs/{bankId}_{student}_{createdAt}.txt  存储具体错题题目
@@ -18,7 +18,7 @@ public class WrongService {
     private final File rootDir;    // 程序根目录
     private final File wrongsDir;  // data/wrongs 目录
 
-    public WrongService(File rootDir) {
+    public WrongService(File rootDir) { // 加载或创建所有必须的目录和文件
         this.rootDir = rootDir;  // 保存根目录
         File dataDir = new File(rootDir, "data"); // data 目录
         if (!dataDir.exists()) dataDir.mkdirs(); // 不存在就创建
@@ -143,7 +143,6 @@ public class WrongService {
             String line;
             while ((line = br.readLine()) != null) list.add(line);
         } catch (Exception e) {
-            // ignore
         }
         return list;
     }
@@ -162,7 +161,6 @@ public class WrongService {
                 }
             }
         } catch (Exception e) {
-            // ignore
         }
     }
 }
