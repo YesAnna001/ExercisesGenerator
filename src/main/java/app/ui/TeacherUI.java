@@ -137,6 +137,10 @@ public class TeacherUI {
     }
 
 
+    /**
+     * 选择习题集来源
+     * @return
+     */
     private String chooseExerciseSource() {
         System.out.printf("%s\n", "1. 系统自动生成");
         System.out.printf("%s\n", "2. 从本地导入csv文件");

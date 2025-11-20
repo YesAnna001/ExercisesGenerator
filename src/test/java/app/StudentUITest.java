@@ -5,6 +5,7 @@ import app.model.QuestionBank;
 import app.model.User;
 import app.model.operation.Addition;
 import app.model.operation.BinaryOperation;
+import app.service.WrongService;
 import app.storage.FileStorage;
 import app.ui.StudentUI;
 import org.junit.Test;
@@ -64,7 +65,8 @@ public class StudentUITest {
             Scanner scanner = new Scanner(new ByteArrayInputStream(simulatedInput.getBytes(StandardCharsets.UTF_8)));
 
             // 4) 构造 StudentUI 并通过反射调用 startExamFlow()
-            StudentUI ui = new StudentUI(scanner, student, storage);
+            WrongService wrongService = mock(WrongService.class);
+            StudentUI ui = new StudentUI(scanner, student, storage,wrongService);
             java.lang.reflect.Method m = StudentUI.class.getDeclaredMethod("startExamFlow");
             m.setAccessible(true);
             m.invoke(ui);

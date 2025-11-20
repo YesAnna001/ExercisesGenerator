@@ -8,6 +8,7 @@ import app.model.exercise.Exercise;
 import app.model.exercise.MixedExercise;
 import app.model.exercise.SubtractionExercise;
 import app.model.operation.BinaryOperation;
+import app.service.WrongService;
 import app.storage.FileStorage;
 import app.util.ColorTextUtil;
 import app.util.InputHelper;
@@ -26,6 +27,9 @@ public class StudentUI {
 	private final User student;
 	/** 文件存储服务 */
 	private final FileStorage storage;
+	/** 错题服务 */
+	private final WrongService wrongService;
+
 
 	/**
 	 * 构造函数
@@ -33,11 +37,13 @@ public class StudentUI {
 	 * @param scanner 输入扫描器
 	 * @param student 学生用户对象
 	 * @param storage 文件存储服务
+	 * @param wrongService 错题管理
 	 */
-	public StudentUI(Scanner scanner, User student, FileStorage storage) {
+	public StudentUI(Scanner scanner, User student, FileStorage storage, WrongService wrongService) {
 		this.scanner = scanner;
 		this.student = student;
 		this.storage = storage;
+		this.wrongService = wrongService;
 	}
 
 	/**
@@ -53,22 +59,125 @@ public class StudentUI {
 			System.out.println(border);
 			System.out.println(ColorTextUtil.color(String.format("| %-51s |", "1. 开始考试"), "blue"));
 			System.out.println(ColorTextUtil.color(String.format("| %-51s |", "2. 查看成绩"), "blue"));
-			System.out.println(ColorTextUtil.color(String.format("| %-52s |", "3. 注销"), "blue"));
+			System.out.println(ColorTextUtil.color(String.format("| %-51s |", "3. 错题重做"), "blue"));
+			System.out.println(ColorTextUtil.color(String.format("| %-52s |", "4. 注销"), "blue"));
 			System.out.println(border);
 
 			// Arrays.asList("1","2","3") → 生成一个 List<String> ["1","2","3"] 不可变长
 			// new HashSet<>(...) → 用这个 List 初始化一个 HashSet
 			// 最终得到一个 HashSet<String>，里面的元素是 "1", "2", "3"，没有重复，顺序不保证。
-			String choice = InputHelper.readOption(scanner, "请输入学生菜单选项序号：", new HashSet<>(Arrays.asList("1","2","3")));
+			String choice = InputHelper.readOption(scanner, "请输入学生菜单选项序号：", new HashSet<>(Arrays.asList("1","2","3","4")));
 			if ("1".equals(choice)) {
 				startExamFlow();
 			} else if ("2".equals(choice)) {
 				viewScoresFlow();
 			} else if ("3".equals(choice)) {
+				wrongExercises();
+			}else if("4".equals(choice)){
 				break;
 			}
 		}
 	}
+
+
+	/**
+	 * 查看错题集：显示每个题库对应的错题情况，并允许重做
+	 */
+	private void wrongExercises() {
+		// 读取该学生所有错题（按 bankId 聚合）
+		Map<String, List<BinaryOperation>> allWrongs = wrongService.loadAllWrongExercises(student.getUsername());
+
+		System.out.println("----------------------------------------------------------");
+
+		// 如果没有错题集，提示并返回
+		if (allWrongs.isEmpty()) {
+			System.out.println(ColorTextUtil.color("暂无错题集。", "yellow"));
+			return;
+		}
+
+		// 显示摘要：序号 | 习题集名称 | 错题数（不显示重做次数）
+		List<String> bankIds = new ArrayList<>(allWrongs.keySet()); // 获取题库列表
+		System.out.printf("%-4s | %-28s | %-10s%n",
+				"序号", "习题集名称", "错题数");
+
+		for (int i = 0; i < bankIds.size(); i++) {
+			String bankId = bankIds.get(i); // 当前题库ID
+			List<BinaryOperation> list = allWrongs.get(bankId); // 对应错题列表
+			QuestionBank bank = storage.loadBank(bankId); // 加载题库元数据
+			String title = (bank != null) ? bank.getTypeDisplayName() : bankId; // 获取题库显示名称
+			System.out.printf("%-4d | %-24s | %-10d%n",
+					i + 1, title, list.size()); // 输出序号、名称、错题数
+		}
+
+		// 选择要重做的错题集
+		Integer idx = InputHelper.readOptionalIndex(scanner, "请选择需要重做的错题集序号：", bankIds.size());
+		if (idx == null) return; // 用户取消选择
+
+		String selectedBankId = bankIds.get(idx); // 选择的题库ID
+		List<BinaryOperation> wrongList = new ArrayList<>(allWrongs.get(selectedBankId)); // 对应错题列表
+		if (wrongList.isEmpty()) {
+			System.out.println(ColorTextUtil.color("该错题集已无错题。", "yellow"));
+			return;
+		}
+
+		// 决定使用哪个 Exercise 子类 —— 优先依据题库元数据
+		Exercise ex;
+		QuestionBank bankMeta = storage.loadBank(selectedBankId);
+		if (bankMeta != null && bankMeta.getType() != null) {
+			String t = bankMeta.getType().trim();
+			if ("add".equals(t)) ex = new AdditionExercise();
+			else if ("sub".equals(t)) ex = new SubtractionExercise();
+			else ex = new MixedExercise();
+		} else {
+			// 元数据缺失：根据错题内容做简单判断（查看第一题类型）
+			BinaryOperation first = wrongList.get(0);
+			if (first instanceof app.model.operation.Addition) {
+				ex = new AdditionExercise();
+			} else if (first instanceof app.model.operation.Subtraction) {
+				ex = new SubtractionExercise();
+			} else {
+				ex = new MixedExercise(); // 兜底：混合题
+			}
+		}
+
+		// 将错题列表设置到 exercise，并开始重做
+		ex.setProblems(wrongList);
+		ex.start();
+		System.out.println("----------------------------------------------------------");
+		System.out.println(ColorTextUtil.color("开始重做错题（输入 -1 返回上一题）", "cyan"));
+
+		List<AttemptRecord> records = takeExam(ex); // 执行考试，返回答题记录
+
+		long correct = records.stream().filter(AttemptRecord::isCorrect).count(); // 统计正确数量
+		int total = records.size(); // 总题数
+
+		if (correct == total) {
+			// 全对：清空该错题集文件
+			System.out.println(ColorTextUtil.color("恭喜！本套错题全部答对！", "green"));
+			wrongService.clearWrongExercises(selectedBankId, student.getUsername()); // 清空错题集
+		} else {
+			// 未全对：收集仍错题并保存为新的错题集（覆盖原来）
+			List<BinaryOperation> stillWrong = new ArrayList<>();
+			List<BinaryOperation> problems = ex.getProblems(); // 获取当前题目列表
+			for (AttemptRecord r : records) {
+				if (!r.isCorrect()) { // 判断是否答错
+					int qidx = r.getIndex(); // 错题索引
+					if (qidx >= 0 && qidx < problems.size()) {
+						stillWrong.add(problems.get(qidx)); // 添加到未掌握列表
+					}
+				}
+			}
+			// 保存剩余错题到错题集
+			wrongService.saveWrongExercises(selectedBankId, student.getUsername(), stillWrong);
+			System.out.println(ColorTextUtil.color(
+					"重做结束。仍有 " + stillWrong.size() + " 道题未掌握，已自动更新错题集。",
+					"yellow"
+			));
+		}
+	}
+
+
+
 
 	/**
 	 * 1. 开始考试
@@ -113,8 +222,6 @@ public class StudentUI {
 		}
 		System.out.println("----------------------------------------------------------");
 
-		//TODO
-
 		// 5. 创建 Exercise 管理题目，根据题库的类型选择不同的exercise进行管理
 		Exercise exercise = null;
 		String type = bank.getType();
@@ -134,6 +241,26 @@ public class StudentUI {
 		String spentTimeFormated = TimeUtils.formatDuration(spentTime);
 		// 7. 存储本次做题的相关信息到本地
 		storage.saveAttemptAndScore(bank.getId(), student.getUsername(), records, spentTime);
+
+		// 保存本次做题的相关信息到本地
+		storage.saveAttemptAndScore(bank.getId(), student.getUsername(), records, spentTime);
+
+		// ======= 新增：收集错题并保存到错题集 =======
+		List<BinaryOperation> wrongs = new ArrayList<>();
+		// exercise 仍然在作用域内，取出题目列表
+		List<BinaryOperation> problems = exercise.getProblems();
+		// records 中每个 AttemptRecord 包含题目索引（构造时为 i）
+		for (AttemptRecord r : records) {
+			if (!r.isCorrect()) {
+				int x = r.getIndex();                 // 获取错题的索引
+				if (x >= 0 && x < problems.size()) {
+					wrongs.add(problems.get(x));     // 把对应的 BinaryOperation 加入错题列表
+				}
+			}
+		}
+		if (!wrongs.isEmpty()) {
+			wrongService.saveWrongExercises(bank.getId(), student.getUsername(), wrongs);
+		}
 
 		// 8. 打印得分信息
 		long correct = records.stream().filter(AttemptRecord::isCorrect).count();
@@ -186,7 +313,6 @@ public class StudentUI {
 	}
 
 
-
 	/**
 	 * 查看成绩流程
 	 * 显示学生的所有成绩记录，并允许查看每道题的详细答题情况
@@ -218,9 +344,9 @@ public class StudentUI {
 
 			// 格式化输出，每列宽度固定，分数根据值着色：100 为 green，0 为 red
 			String scoreStr;
-			if (score == 100) {
+			if (score >= 90) {
 				scoreStr = ColorTextUtil.color(String.valueOf(score), "green");
-			} else if (score == 0) {
+			} else if (score <= 60) {
 				scoreStr = ColorTextUtil.color(String.valueOf(score), "red");
 			} else {
 				scoreStr = String.valueOf(score);
@@ -283,7 +409,6 @@ public class StudentUI {
 			}
 		}
 	}
-
 
 
 	/**
